@@ -26,6 +26,13 @@ def get_error_message(error, default_text):
         # otherwise, return given default text
         return default_text
 
+
+def getJSON(obj):
+    if not isinstance(obj, list):
+        obj = [obj]
+    jsonList = json.dumps(obj)
+    return jsonList
+
 ## ROUTES
 '''
 @TODO implement endpoint
@@ -79,16 +86,19 @@ def get_drinks_detail(jwt):
 @app.route('/drinks',  methods=['POST'])
 @requires_auth('post:drinks')
 def create_drink(jwt):
-    body = request.get_json()
-    if 'title' and 'recipe' not in body:
+    data = request.get_json()
+    if 'title' and 'recipe' not in data:
         abort(422)
 
-    new_drink = Drink(title=body['title'], recipe="""{}""".format(body['recipe']))
-    new_drink.insert()
-    
+    title = data['title']
+    recipe = data['recipe']
+    recipeJSON = getJSON(recipe)
+    drink = Drink(title=title, recipe=recipeJSON)
+    drink.insert()
+
     return jsonify({
         'success': True,
-        'drinks': Drink.long(new_drink)
+        'drinks': drink.long()
     }), 200
 
 '''
