@@ -46,7 +46,7 @@ def get_drinks():
     return jsonify({
         'success': True,
         'drinks': all_drinks_formatted
-    })
+    }), 200
 
 '''
 @TODO implement endpoint
@@ -57,17 +57,15 @@ def get_drinks():
         or appropriate status code indicating reason for failure
 '''
 @app.route('/drinks-detail', methods=['GET'])
-def get_drinks_detail():
+@requires_auth('get:drinks-detail')
+def get_drinks_detail(jwt):
     all_drinks = Drink.query.order_by(Drink.id).all()
     all_drinks_formatted = [drink.long() for drink in all_drinks]
-
-    if len(all_drinks_formatted) == 0:
-        abort(404, {'message': 'No drinks found in Database.'})
 
     return jsonify({
         'success': True,
         'drinks': all_drinks_formatted
-    })
+    }), 200
 
 '''
 @TODO implement endpoint
@@ -80,7 +78,7 @@ def get_drinks_detail():
 '''
 @app.route('/drinks',  methods=['POST'])
 @requires_auth('post:drinks')
-def create_drink(payload):
+def create_drink(jwt):
     body = request.get_json()
     if 'title' and 'recipe' not in body:
         abort(422)
@@ -91,7 +89,7 @@ def create_drink(payload):
     return jsonify({
         'success': True,
         'drinks': Drink.long(new_drink)
-    })
+    }), 200
 
 '''
 @TODO implement endpoint
@@ -106,7 +104,7 @@ def create_drink(payload):
 '''
 @app.route('/drinks/<int:drink_id>',  methods=['PATCH'])
 @requires_auth('patch:drinks')
-def update_drinks(payload, drink_id):
+def update_drinks(jwt, drink_id):
     drink = Drink.query.get(drink_id)
     if drink is None:
         abort(404)
@@ -131,7 +129,7 @@ def update_drinks(payload, drink_id):
     return jsonify({
         'success': True,
         'drinks': [Drink.long(drink_to_update)]
-    })
+    }), 200
 '''
 @TODO implement endpoint
     DELETE /drinks/<id>
@@ -144,7 +142,7 @@ def update_drinks(payload, drink_id):
 '''
 @app.route('/drinks/<int:drink_id>', methods=['DELETE'])
 @requires_auth('delete:drinks')
-def delete_drinks(payload, drink_id):
+def delete_drinks(jwt, drink_id):
     drink = Drink.query.filter(Drink.id == drink_id).one_or_none()
     if drink is None:
         abort(404)
