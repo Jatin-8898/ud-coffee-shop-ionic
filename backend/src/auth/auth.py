@@ -172,6 +172,7 @@ def requires_auth(permission=''):
             token = get_token_auth_header()
             try:
                 payload = verify_decode_jwt(token)
+                print(payload)
             except:
                 raise AuthError({
                     'code': 'invalid_payload',
